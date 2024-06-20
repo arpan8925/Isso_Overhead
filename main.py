@@ -13,15 +13,20 @@ MY_PASS = "gogatmuwcjufqlet"
 
 def postion_check():
 
-    response = requests.get(url="http://api.open-notify.org/iss-now.json")
-    response.raise_for_status()
-    data = response.json()
+    try:
+        response = requests.get(url="http://api.open-notify.org/iss-now.json")
+        response.raise_for_status()
+        data = response.json()
 
-    iss_latitude = float(data["iss_position"]["latitude"])
-    iss_longitude = float(data["iss_position"]["longitude"])
+    except requests.exceptions.HTTPError:
+        postion_check()
 
-    if MY_LAT-5 <= iss_latitude <= MY_LAT+5 and MY_LONG-5 <= iss_longitude <= MY_LONG+5:
-        return True
+    finally:
+        iss_latitude = float(data["iss_position"]["latitude"])
+        iss_longitude = float(data["iss_position"]["longitude"])
+
+        if MY_LAT-5 <= iss_latitude <= MY_LAT+5 and MY_LONG-5 <= iss_longitude <= MY_LONG+5:
+            return True
 
 def day_night_check():
 
@@ -73,14 +78,4 @@ while True:
             from_addr=MY_EMAIL,
             to_addrs= MY_EMAIL,
             msg=f"Subject:  Look Up Now! The ISS is in Your Sky! \n\n Look up now! The International Space Station is soaring across your sky!  Don't miss this incredible sight! "
-        )
-
-    else:
-        connection = smtplib.SMTP("smtp.gmail.com")
-        connection.starttls()
-        connection.login(user=MY_EMAIL, password=MY_PASS)
-        connection.sendmail(
-            from_addr=MY_EMAIL,
-            to_addrs= MY_EMAIL,
-            msg=f"Subject:  Program Running \n\n Program Running Fine"
         )
